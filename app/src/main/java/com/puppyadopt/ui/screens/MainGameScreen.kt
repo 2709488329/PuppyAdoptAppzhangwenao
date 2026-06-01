@@ -29,21 +29,11 @@ fun MainGameScreen(viewModel: GameViewModel) {
     val rescueClicks = getRescueClickNeeded(state)
     val promoteClicks = getPromoteClickNeeded(state)
 
-    Scaffold(
-        bottomBar = {
-            GameBottomBar(
-                items = navItems,
-                selectedRoute = selectedTab,
-                onItemSelected = { selectedTab = it }
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+    // 直接用 Column 布局，底部栏固定在最下方
+    Column(modifier = Modifier.fillMaxSize()) {
+
+        // 内容区域（占据所有剩余空间）
+        Box(modifier = Modifier.weight(1f)) {
             when (selectedTab) {
                 "home" -> HomeScreen(
                     state = state,
@@ -79,7 +69,7 @@ fun MainGameScreen(viewModel: GameViewModel) {
                 GameToast(message = toastMessage)
             }
 
-            // 剧情事件
+            // 剧情事件弹窗
             if (state.eventLock && state.currentEvent != null) {
                 val event = state.currentEvent!!
                 GameDialog(
@@ -119,11 +109,18 @@ fun MainGameScreen(viewModel: GameViewModel) {
                 )
             }
 
-            // 欢迎页（未开始时）
+            // 欢迎页
             if (state.startTime == 0L && !state.finished && !state.eventLock) {
                 WelcomeOverlay(onStart = { viewModel.startGame() })
             }
         }
+
+        // 底部导航栏（固定 56dp 高度）
+        GameBottomBar(
+            items = navItems,
+            selectedRoute = selectedTab,
+            onItemSelected = { selectedTab = it }
+        )
     }
 }
 

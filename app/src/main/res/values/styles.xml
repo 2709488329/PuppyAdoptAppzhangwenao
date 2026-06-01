@@ -4,6 +4,4 @@
         <item name="android:statusBarColor">#FFEC407A</item>
         <item name="android:navigationBarColor">#FFFFFFFF</item>
     </style>
-
-    <string name="app_name">领养小奶狗</string>
 </resources>

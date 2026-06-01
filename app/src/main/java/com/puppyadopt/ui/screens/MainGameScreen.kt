@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.sp
 import com.puppyadopt.data.*
 import com.puppyadopt.ui.components.*
 
-// 底部导航项
 private val navItems = listOf(
     BottomNavItem("home", "救助站", "🏠"),
     BottomNavItem("shop", "商店", "🛍️"),
@@ -20,123 +19,108 @@ private val navItems = listOf(
 )
 
 @Composable
-fun MainGameScreen(
-    viewModel: GameViewModel
-) {
+fun MainGameScreen(viewModel: GameViewModel) {
     val state by viewModel.state.collectAsState()
     val toastMessage by viewModel.toastMessage.collectAsState()
 
     var selectedTab by remember { mutableStateOf("home") }
     var showResetDialog by remember { mutableStateOf(false) }
 
-    // 计算救助/宣传所需点击
     val rescueClicks = getRescueClickNeeded(state)
     val promoteClicks = getPromoteClickNeeded(state)
 
-    // Toast
-    Box(modifier = Modifier.fillMaxSize()) {
+    Scaffold(
+        bottomBar = {
+            GameBottomBar(
+                items = navItems,
+                selectedRoute = selectedTab,
+                onItemSelected = { selectedTab = it }
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
+        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
 
-        // === 主内容区域 ===
-        Scaffold(
-            bottomBar = {
-                GameBottomBar(
-                    items = navItems,
-                    selectedRoute = selectedTab,
-                    onItemSelected = { selectedTab = it }
+            // 主内容（根据tab切换）
+            when (selectedTab) {
+                "home" -> HomeScreen(
+                    state = state,
+                    gameSeconds = viewModel.getGameTimeSeconds(),
+                    onRescue = { viewModel.doRescue() },
+                    onPromote = { viewModel.doPromote() },
+                    showRescueClicks = state.rescClk,
+                    showPromoteClicks = state.proClk,
+                    rescueNeeded = rescueClicks,
+                    promoteNeeded = promoteClicks
                 )
-            },
-            containerColor = MaterialTheme.colorScheme.background
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                // 根据tab显示不同页面
-                when (selectedTab) {
-                    "home" -> HomeScreen(
-                        state = state,
-                        gameSeconds = viewModel.getGameTimeSeconds(),
-                        onRescue = { viewModel.doRescue() },
-                        onPromote = { viewModel.doPromote() },
-                        showRescueClicks = state.rescClk,
-                        showPromoteClicks = state.proClk,
-                        rescueNeeded = rescueClicks,
-                        promoteNeeded = promoteClicks
-                    )
-                    "shop" -> ShopScreen(
-                        state = state,
-                        onHireEmployee = { viewModel.hireEmployee(it) },
-                        onDiamondHire = { viewModel.diamondHire(it) },
-                        onDiamondExchange = { viewModel.diamondExchange() },
-                        onBuyDiamondProb = { viewModel.buyDiamondProb() },
-                        onBuyShopItem = { viewModel.buyShopItem(it) },
-                        onUpgrade = { viewModel.upgrade(it) }
-                    )
-                    "story" -> StoryScreen(state = state)
-                    "settings" -> SettingsScreen(
-                        onResetGame = { showResetDialog = true },
-                        gameSeconds = viewModel.getGameTimeSeconds()
-                    )
-                }
+                "shop" -> ShopScreen(
+                    state = state,
+                    onHireEmployee = { viewModel.hireEmployee(it) },
+                    onDiamondHire = { viewModel.diamondHire(it) },
+                    onDiamondExchange = { viewModel.diamondExchange() },
+                    onBuyDiamondProb = { viewModel.buyDiamondProb() },
+                    onBuyShopItem = { viewModel.buyShopItem(it) },
+                    onUpgrade = { viewModel.upgrade(it) }
+                )
+                "story" -> StoryScreen(state = state)
+                "settings" -> SettingsScreen(
+                    onResetGame = { showResetDialog = true },
+                    gameSeconds = viewModel.getGameTimeSeconds()
+                )
             }
-        }
 
-        // === Toast 浮层 ===
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.TopCenter
-        ) {
-            GameToast(message = toastMessage)
-        }
+            // Toast 浮层
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                GameToast(message = toastMessage)
+            }
 
-        // === 剧情事件弹窗 ===
-        if (state.eventLock && state.currentEvent != null) {
-            val event = state.currentEvent!!
-            GameDialog(
-                title = event.title,
-                message = event.message,
-                buttons = event.buttons.mapIndexed { index, button ->
-                    Pair(button.text, if (true) {  // always clickable to proceed
-                        {
+            // 剧情事件弹窗
+            if (state.eventLock && state.currentEvent != null) {
+                val event = state.currentEvent!!
+                GameDialog(
+                    title = event.title,
+                    message = event.message,
+                    buttons = event.buttons.mapIndexed { index, _ ->
+                        Pair(event.buttons[index].text) {
                             viewModel.onEventButtonClick(index)
                         }
-                    } else null)
-                },
-                onDismiss = { /* event must be handled through buttons */ }
-            )
-        }
-
-        // === 重置确认弹窗 ===
-        if (showResetDialog) {
-            GameDialog(
-                title = "🔄 确认重置",
-                message = "所有游戏进度将被清除，包括声望、钻石、员工、剧情进度等。此操作不可撤销！",
-                buttons = listOf(
-                    Pair("✅ 确认重置") {
-                        viewModel.resetGame()
-                        showResetDialog = false
                     },
-                    Pair("❌ 取消") { showResetDialog = false }
-                ),
-                onDismiss = { showResetDialog = false }
-            )
-        }
+                    onDismiss = { }
+                )
+            }
 
-        // === 完成结局 ===
-        if (state.finished) {
-            FinishScreen(
-                totalPrestige = state.totalPrestige,
-                gameSeconds = viewModel.getGameTimeSeconds(),
-                onReset = {
-                    viewModel.resetGame()
-                }
-            )
-        }
+            // 重置确认弹窗
+            if (showResetDialog) {
+                GameDialog(
+                    title = "🔄 确认重置",
+                    message = "所有游戏进度将被清除，包括声望、钻石、员工、剧情进度等。此操作不可撤销！",
+                    buttons = listOf(
+                        Pair("✅ 确认重置") {
+                            viewModel.resetGame()
+                            showResetDialog = false
+                        },
+                        Pair("❌ 取消") { showResetDialog = false }
+                    ),
+                    onDismiss = { showResetDialog = false }
+                )
+            }
 
-        // === 首页（未开始前）===
-        if (state.startTime == 0L && !state.finished && !state.eventLock) {
-            WelcomeOverlay(onStart = { viewModel.startGame() })
+            // 完成结局
+            if (state.finished) {
+                FinishScreen(
+                    totalPrestige = state.totalPrestige,
+                    gameSeconds = viewModel.getGameTimeSeconds(),
+                    onReset = { viewModel.resetGame() }
+                )
+            }
+
+            // 首页欢迎（未开始）
+            if (state.startTime == 0L && !state.finished && !state.eventLock) {
+                WelcomeOverlay(onStart = { viewModel.startGame() })
+            }
         }
     }
 }
@@ -147,9 +131,7 @@ private fun WelcomeOverlay(onStart: () -> Unit) {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        GameCard(
-            modifier = Modifier.padding(40.dp)
-        ) {
+        GameCard(modifier = Modifier.padding(40.dp)) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -175,7 +157,6 @@ private fun WelcomeOverlay(onStart: () -> Unit) {
     }
 }
 
-// 辅助函数
 private fun getRescueClickNeeded(state: GameState): Int {
     val lv = if (state.foodSec > 0) minOf(6, state.rescueLv + 2) else state.rescueLv
     val base = BASE_CLICKS[lv.coerceIn(0, 6)]

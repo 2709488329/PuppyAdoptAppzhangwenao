@@ -44,7 +44,7 @@ fun PinkButton(
     ) {
         Box(
             modifier = Modifier
-                .matchParentSize()
+                .fillMaxSize()
                 .background(
                     brush = Brush.horizontalGradient(listOf(Color(0xFFF48FB1), Color(0xFFEC407A))),
                     shape = RoundedCornerShape(11.dp)

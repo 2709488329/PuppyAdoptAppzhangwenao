@@ -37,8 +37,7 @@ fun GameBottomBar(
 ) {
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = 3.dp,
-        shadowElevation = 8.dp
+        tonalElevation = 3.dp
     ) {
         items.forEach { item ->
             val selected = item.route == selectedRoute

@@ -81,3 +81,23 @@ fun FinishScreen(
             Spacer(Modifier.height(24.dp))
 
             Surface(
+                onClick = onReset,
+                shape = RoundedCornerShape(16.dp),
+                color = Color.White,
+                modifier = Modifier.fillMaxWidth().height(48.dp)
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(
+                        text = "🔄 重新开始",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFC2185B)
+                    )
+                }
+            }
+        }
+    }
+}

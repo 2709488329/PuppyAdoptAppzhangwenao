@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="pink_primary">#FFEC407A</color>
+    <color name="pink_dark">#FFC2185B</color>
+    <color name="pink_light">#FFFCE4EC</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+</resources>

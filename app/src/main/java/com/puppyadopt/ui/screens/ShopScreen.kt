@@ -185,7 +185,7 @@ private fun ShopItemRow(
         PinkButton(
             text = if (canBuy) "购买" else "已拥有",
             onClick = onBuy,
-            enabled = canBuy && !canBuy,  // will be fixed in final version
+            enabled = canBuy
             small = true
         )
     }

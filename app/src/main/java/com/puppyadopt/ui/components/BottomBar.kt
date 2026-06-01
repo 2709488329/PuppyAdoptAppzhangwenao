@@ -20,13 +20,11 @@ import com.puppyadopt.ui.theme.*
 
 /**
  * Material You 风格的底部导航栏
- * 使用 NavigationBar (M3) + NavigationBarItem (M3)
- * 具有动态指示器 + 颜色过渡动画
  */
 data class BottomNavItem(
     val route: String,
     val label: String,
-    val icon: String   // Emoji icon as fallback; real icon requires resources
+    val icon: String
 )
 
 @Composable
@@ -37,7 +35,8 @@ fun GameBottomBar(
 ) {
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = 3.dp
+        tonalElevation = 3.dp,
+        windowInsets = WindowInsets(0, 0, 0, 0)
     ) {
         items.forEach { item ->
             val selected = item.route == selectedRoute
@@ -56,14 +55,14 @@ fun GameBottomBar(
                     ) {
                         Text(
                             text = item.icon,
-                            fontSize = 22.sp
+                            fontSize = 20.sp
                         )
                     }
                 },
                 label = {
                     Text(
                         text = item.label,
-                        fontSize = 11.sp,
+                        fontSize = 10.sp,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                         color = if (selected) DarkPink else LightText,
                         textAlign = TextAlign.Center
@@ -83,7 +82,7 @@ fun GameBottomBar(
 }
 
 /**
- * 更传统的自定义底栏（带Material You风格的圆角指示器）
+ * 自定义底栏（更紧凑）
  */
 @Composable
 fun CustomBottomBar(
@@ -94,13 +93,13 @@ fun CustomBottomBar(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 8.dp,
         tonalElevation = 3.dp
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .height(56.dp)
+                .padding(horizontal = 4.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -120,17 +119,17 @@ fun CustomBottomBar(
                             indication = null,
                             onClick = { onItemSelected(item.route) }
                         )
-                        .padding(vertical = 8.dp),
+                        .padding(vertical = 6.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                    verticalArrangement = Arrangement.spacedBy(1.dp)
                 ) {
                     Text(
                         text = item.icon,
-                        fontSize = 20.sp
+                        fontSize = 18.sp
                     )
                     Text(
                         text = item.label,
-                        fontSize = 11.sp,
+                        fontSize = 10.sp,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                         color = if (selected) DarkPink else LightText
                     )

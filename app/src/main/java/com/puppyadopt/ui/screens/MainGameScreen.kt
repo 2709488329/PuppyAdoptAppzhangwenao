@@ -39,9 +39,11 @@ fun MainGameScreen(viewModel: GameViewModel) {
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-
-            // 主内容（根据tab切换）
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
             when (selectedTab) {
                 "home" -> HomeScreen(
                     state = state,
@@ -69,7 +71,7 @@ fun MainGameScreen(viewModel: GameViewModel) {
                 )
             }
 
-            // Toast 浮层
+            // Toast
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.TopCenter
@@ -77,7 +79,7 @@ fun MainGameScreen(viewModel: GameViewModel) {
                 GameToast(message = toastMessage)
             }
 
-            // 剧情事件弹窗
+            // 剧情事件
             if (state.eventLock && state.currentEvent != null) {
                 val event = state.currentEvent!!
                 GameDialog(
@@ -92,7 +94,7 @@ fun MainGameScreen(viewModel: GameViewModel) {
                 )
             }
 
-            // 重置确认弹窗
+            // 重置确认
             if (showResetDialog) {
                 GameDialog(
                     title = "🔄 确认重置",
@@ -108,7 +110,7 @@ fun MainGameScreen(viewModel: GameViewModel) {
                 )
             }
 
-            // 完成结局
+            // 结局
             if (state.finished) {
                 FinishScreen(
                     totalPrestige = state.totalPrestige,
@@ -117,7 +119,7 @@ fun MainGameScreen(viewModel: GameViewModel) {
                 )
             }
 
-            // 首页欢迎（未开始）
+            // 欢迎页（未开始时）
             if (state.startTime == 0L && !state.finished && !state.eventLock) {
                 WelcomeOverlay(onStart = { viewModel.startGame() })
             }
